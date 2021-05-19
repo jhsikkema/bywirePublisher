@@ -692,6 +692,12 @@ class ByWireAdmin {
 	       		wp_register_style( 'bywire-admin-custom-css',  BYWIRE__PLUGIN_URL . "assets/css/bywire_admin_custom.css", array(), BYWIRE_VERSION );
 			wp_enqueue_style( 'bywire-admin-custom-css');
 		}
+		if (in_array($hook, array("edit.php", "post-new.php", "post.php"))) {
+
+	            if (isset($_SESSION["bywire_featured_image"])) {
+		        unset($_SESSION["bywire_featured_image"]);
+		    }
+		}
 		
 		$valid_pages = array(
 			"edit.php",
