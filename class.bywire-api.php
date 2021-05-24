@@ -44,11 +44,24 @@ class ByWireAPI {
 		      	                  'method'=>ByWireAPI::METHOD_GET);
     }
 
+    public static function test() {
+        $connection = @fsockopen(ByWireAPI::API_HOST, ByWireAPI::API_PORT);
+	if (is_resource($connection)) {
+            fclose($connection);
+	    return true;
+	}
+	return false;
+    }
+
 
     public static function login() {
         // Logs the publisher onto the bywire network
         $route = self::$routes['login'];
         $user = ByWireUser::instance();
+	if (!($user->connection_tested) > 0) {
+	   return $user;
+	}
+	
 	if (!($user->accept_terms > 0)) {
 	    $user->access_token = "";
 	    return $user;

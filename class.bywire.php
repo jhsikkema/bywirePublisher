@@ -94,6 +94,7 @@ class ByWire {
 	}
 
 	public static function login_user( $user ) {
+	       $user->test();
 	       $result = ByWireAPI::login();
 	       return True;
 	}

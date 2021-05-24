@@ -21,6 +21,7 @@ class ByWireUser extends Singleton {
     const USER_CONNECTED     = ByWire::ENV.'-user-connected';
     const USER_STATUS_KEY    = ByWire::ENV.'-user-status-key';
     const USER_RESPONSE_KEY  = ByWire::ENV.'-user-response-key';
+    const CONNECTION_TESTED  = ByWire::ENV.'-connection-tested';
 
     const STATUS_VALID               = 0;
     const STATUS_INVALID             = 1;
@@ -28,21 +29,23 @@ class ByWireUser extends Singleton {
     const STATUS_INVALID_TERMS       = 4;
     const STATUS_SERVER_ERROR        = 8;
     const STATUS_SERVER_TIMEOUT      = 16;
+    const STATUS_SERVER_UNAVAILABLE  = 32;
     
 
-    public $username         = "";
-    public $password         = "";
-    public $api_key          = "";
-    public $accept_terms     = false;
-    public $response         = "";
+    public $username          = "";
+    public $password          = "";
+    public $api_key           = "";
+    public $accept_terms      = false;
+    public $response          = "";
+    public $connection_tested = 0;
     
-    public $connected        = false;
-    public $status           = -1;
+    public $connected         = false;
+    public $status            = -1;
     
-    public $access_token     = "";
-    public $access_expiry    = "";
-    public $refresh_token    = "";
-    public $refresh_expiry   = "";
+    public $access_token      = "";
+    public $access_expiry     = "";
+    public $refresh_token     = "";
+    public $refresh_expiry    = "";
 
     public function status_str() {
     	if ($this->status == ByWireUser::STATUS_VALID) {
@@ -63,6 +66,9 @@ class ByWireUser extends Singleton {
 	}
 	if ($this->status == ByWireUser::STATUS_SERVER_TIMEOUT) {
 	   return "Server Timeout - BywirePublisher will reconnect";
+	}
+	if ($this->status == ByWireUser::STATUS_SERVER_UNAVAILABLE) {
+	   return "Server cannot be reached, please contact bywire to discuss the configuration of your firewall";
 	}
 	return "Unknown Error - ".$this->status;
     }
@@ -115,21 +121,36 @@ class ByWireUser extends Singleton {
 
     }
 
-    protected function init() {
-        $this->username       = apply_filters( ByWire::ENV.'_get_user', get_option(ByWireUser::USERNAME_KEY));
-        $this->password       = apply_filters( ByWire::ENV.'_get_pass', get_option(ByWireUser::PASSWORD_KEY));
-        $this->api_key        = apply_filters( ByWire::ENV.'_get_api_key', get_option(ByWireUser::API_KEY));
-	$this->accept_terms   = apply_filters( ByWire::ENV.'_get_accept_terms',   get_option(ByWireUser::ACCEPT_TERMS_KEY));
-
-        $this->access_token   = apply_filters( ByWire::ENV.'_get_access_token',   get_option(ByWireUser::ACCESS_TOKEN_KEY));
-        $this->access_expiry  = apply_filters( ByWire::ENV.'_get_access_expiry',  get_option(ByWireUser::ACCESS_EXPIRY_KEY));
-        $this->refresh_token  = apply_filters( ByWire::ENV.'_get_refresh_expiry', get_option(ByWireUser::REFRESH_TOKEN_KEY));
-        $this->refresh_expiry = apply_filters( ByWire::ENV.'_get_refresh_expiry', get_option(ByWireUser::REFRESH_EXPIRY_KEY));
-
-	$this->connected      = apply_filters( ByWire::ENV.'_get_connected',        get_option(ByWireUser::USER_CONNECTED));
-        $this->status         = apply_filters( ByWire::ENV.'_get_status',        get_option(ByWireUser::USER_STATUS_KEY));
-	$this->response       = apply_filters( ByWire::ENV.'_get_response',        get_option(ByWireUser::USER_RESPONSE_KEY));
+    public static function get_option($tag, $default=true) {
+         return apply_filters(ByWire::ENV.$tag, get_option($tag, $default=$default));
     }
+
+    protected function init() {
+        $this->username          = $this->get_option(ByWireUser::USERNAME_KEY,       $this->username);
+        $this->password          = $this->get_option(ByWireUser::PASSWORD_KEY,       $this->password);
+        $this->api_key           = $this->get_option(ByWireUser::API_KEY,            $this->api_key);
+        $this->accept_terms      = $this->get_option(ByWireUser::ACCEPT_TERMS_KEY,   $this->accept_terms);
+        $this->access_token      = $this->get_option(ByWireUser::ACCESS_TOKEN_KEY,   $this->access_token);
+        $this->access_expiry     = $this->get_option(ByWireUser::ACCESS_EXPIRY_KEY,  $this->access_expiry);
+        $this->refresh_token     = $this->get_option(ByWireUser::REFRESH_TOKEN_KEY,  $this->refresh_token);
+        $this->refresh_expiry    = $this->get_option(ByWireUser::REFRESH_EXPIRY_KEY, $this->refresh_expiry);
+        $this->connected         = $this->get_option(ByWireUser::USER_CONNECTED,     $this->connected);
+        $this->status            = $this->get_option(ByWireUser::USER_STATUS_KEY,    $this->status);
+        $this->response          = $this->get_option(ByWireUser::USER_RESPONSE_KEY,  $this->response);
+        $this->connection_tested = $this->get_option(ByWireUser::CONNECTION_TESTED,  $this->connection_tested);
+
+	if ($this->connection_tested === 0) {
+	   $this->test();
+	}
+
+    }
+
+    public function test() {
+    	$this->connection_tested = (ByWireAPI::test()) ? 1 : -1;
+	$this->status = ($this->connection_tested > 0) ? $this->status : ByWireUser::STATUS_SERVER_UNAVAILABLE;
+	$this->store();
+    }
+
 
     public function connect() {
         $this->connected    = true;
@@ -185,17 +206,18 @@ class ByWireUser extends Singleton {
     }
 
     public function store() {
-        update_option( ByWireUser::USERNAME_KEY,       $this->username);
-        update_option( ByWireUser::PASSWORD_KEY,       $this->password);
-        update_option( ByWireUser::API_KEY,            $this->api_key);
-        update_option( ByWireUser::ACCEPT_TERMS_KEY,   $this->accept_terms);
-        update_option( ByWireUser::ACCESS_TOKEN_KEY,   $this->access_token);
-        update_option( ByWireUser::ACCESS_EXPIRY_KEY,  $this->access_expiry);
-        update_option( ByWireUser::REFRESH_TOKEN_KEY,  $this->refresh_token);
-        update_option( ByWireUser::REFRESH_EXPIRY_KEY, $this->refresh_expiry);
-        update_option( ByWireUser::USER_CONNECTED,     $this->connected);
-        update_option( ByWireUser::USER_STATUS_KEY,    $this->status);
-        update_option( ByWireUser::USER_RESPONSE_KEY,  $this->response);
+        update_option( ByWireUser::USERNAME_KEY,          $this->username);
+        update_option( ByWireUser::PASSWORD_KEY,          $this->password);
+        update_option( ByWireUser::API_KEY,               $this->api_key);
+        update_option( ByWireUser::ACCEPT_TERMS_KEY,      $this->accept_terms);
+        update_option( ByWireUser::ACCESS_TOKEN_KEY,      $this->access_token);
+        update_option( ByWireUser::ACCESS_EXPIRY_KEY,     $this->access_expiry);
+        update_option( ByWireUser::REFRESH_TOKEN_KEY,     $this->refresh_token);
+        update_option( ByWireUser::REFRESH_EXPIRY_KEY,    $this->refresh_expiry);
+        update_option( ByWireUser::USER_CONNECTED,        $this->connected);
+        update_option( ByWireUser::USER_STATUS_KEY,       $this->status);
+        update_option( ByWireUser::USER_RESPONSE_KEY,     $this->response);
+        update_option( ByWireUser::CONNECTION_TESTED,     $this->connection_tested);
     }
 
     public function update($new_user) {
@@ -225,6 +247,7 @@ class ByWireUser extends Singleton {
         delete_option(ByWireUser::USER_CONNECTED);
         delete_option(ByWireUser::USER_STATUS_KEY);
         delete_option(ByWireUser::USER_RESPONSE_KEY);
+        delete_option(ByWireUser::CONNECTION_TESTED);
     }
 }
 
