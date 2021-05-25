@@ -70,6 +70,9 @@ class ByWireUser extends Singleton {
 	if ($this->status == ByWireUser::STATUS_SERVER_UNAVAILABLE) {
 	   return "Server cannot be reached, please contact bywire to discuss the configuration of your firewall";
 	}
+	if ($this->status < 0) {
+	   return "";
+	}	
 	return "Unknown Error - ".$this->status;
     }
 
