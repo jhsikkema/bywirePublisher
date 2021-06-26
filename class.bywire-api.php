@@ -12,7 +12,7 @@ class ByWireAPI {
      */
     const API_HOST     = 'ec2-99-81-187-79.eu-west-1.compute.amazonaws.com';
     const API_PORT     = 80;
-    const API_ROUTE    = '/bywire/api/v1'
+    const API_ROUTE    = '/bywire/api/v1/';
     
     const METHOD_POST = "POST";
     const METHOD_GET  = "GET";
@@ -46,7 +46,7 @@ class ByWireAPI {
     }
 
     public static function test() {
-	$connection = @fsockopen(ByWireAPI::API_HOST, ByWireAPI::API_PORT, ByWireAPI::API_ROUTE);
+	$connection = @fsockopen(ByWireAPI::API_HOST, ByWireAPI::API_PORT);
 	if (is_resource($connection)) {
 	    fclose($connection);
 	    return true;
@@ -72,7 +72,7 @@ class ByWireAPI {
 			 "password"=>$user->password,
 			 "version"=>"BywirePublisher-".BYWIRE_VERSION
 			 );
-	$response = ByWireAPI::http_request($request, $route['route'], $route['method'], null, 1);
+	$response = ByWireAPI::http_request($request, $route['route'], $route['method'], null);
 	$user->add_response($response);
 	return $user;
     }
@@ -81,7 +81,6 @@ class ByWireAPI {
 	// Checks if an article is on the blockchain
 	$route = self::$routes['validate'];
 	$request = array("article"=>$hash);
-	/* print_r($request); */
 	$response = ByWireAPI::http_request($request, $route['route'], $route['method']);
 	return $response;
     }

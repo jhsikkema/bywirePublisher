@@ -165,6 +165,7 @@ class ByWireUser extends Singleton {
     	$this->access_expiry    = "";
     	$this->refresh_token    = "";
     	$this->refresh_expiry   = "";
+	$this->connection_tested = 0;
 	$this->store();
     }
 
