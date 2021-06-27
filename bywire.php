@@ -6,7 +6,7 @@
 Plugin Name: Bywire Publisher
 Plugin URI: bywire.news/plugin
 Description: Used by large news organizations, <strong>Bywire Publisher</strong> is your gateway to publish articles to the bywire decentralized news universe. To get started: activate the Bywire Publisher plugin and then go to your Bywire Settings page to set up your account.
-Version: 0.0.10
+Version: 0.0.12
 Author: Jetze Sikkema
 Author URI: https://www.sikkemasoftware.nl
 License: GPLv2 or later
@@ -37,7 +37,7 @@ if ( !function_exists( 'add_action' ) ) {
 	exit;
 }
 
-define( 'BYWIRE_VERSION', '0.0.10' );
+define( 'BYWIRE_VERSION', '0.0.12' );
 define( 'BYWIRE__MINIMUM_WP_VERSION', '4.4' );
 define( 'BYWIRE__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BYWIRE__PLUGIN_URL', plugin_dir_url(__FILE__) );
