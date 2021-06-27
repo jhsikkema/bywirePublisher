@@ -170,7 +170,7 @@ class ByWireAPI {
 	return $response;
     }
 
-    public static function publisher_report() {
+    public static function publisher_report($add_today=false) {
 	// Obtains statics on publishes/reads for the user.
 	$route = self::$routes['publisherreport'];
 	$user = ByWireUser::instance();
@@ -180,7 +180,8 @@ class ByWireAPI {
 	if ($user->expired()) {
 	     $user = ByWireAPI::login();
 	}
-	$request = array("since"=>"");
+	$request = array("since"=>"",
+		 "add_today"=>$add_today);
 	$response = ByWireAPI::http_request($request, $route['route'], $route['method'], $user->access_token);
 	return $response;
     }

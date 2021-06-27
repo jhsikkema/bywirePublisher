@@ -7,7 +7,7 @@ require_once(BYWIRE__PLUGIN_DIR . "class.util.php");
 $account = ByWireAPI::account();
 $stakes  = ByWireAPI::stakes();
 
-$report = ByWireAPI::publisher_report();
+$report = ByWireAPI::publisher_report(true);
 
 $monthly_data   = array();
 $weekly_data   = array();

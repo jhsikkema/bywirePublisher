@@ -115,8 +115,10 @@ class ByWireUser extends Singleton {
     public static function from_post() {
         $instance = self::instance();
 	$instance->disconnect();
-	$instance->username = preg_replace( '/[^A-Za-z0-9]/i', '', $_POST['bywire-username'] );
-        $instance->password = $_POST['bywire-password'];
+	$username = preg_replace( '/^\s*|\s*$/i', '', $_POST['bywire-username'] );
+	$username = preg_replace( '/[^A-Za-z0-9 _]/i', '', $username);
+	$instance->username = $username;
+        $instance->password = preg_replace( '/[^A-Za-z0-9!@#$%*]/i', '', $_POST['bywire-password']);
         $instance->api_key  = preg_replace( '/[^A-Za-z0-9]/i', '', $_POST['bywire-api-key'] );
         $instance->accept_terms = (isset($_POST['bywire-accept-terms'] ) && $_POST['bywire-accept-terms'] === "on") ? true : false;
 	$instance->status = (($instance->username !== "") && !($instance->accept_terms)) ? ByWireUser::STATUS_INVALID_TERMS : $instance->status;
