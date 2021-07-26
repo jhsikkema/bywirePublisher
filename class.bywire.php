@@ -457,7 +457,7 @@ class ByWire {
 	    if (!$config->show_footer) {
 	         return;
 	    }
-	    ByWire::view('privacy_notice');
+	    echo ByWire::load_view('privacy_notice');
 	}
 }
 

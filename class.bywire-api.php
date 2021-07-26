@@ -46,7 +46,7 @@ class ByWireAPI {
     }
 
     public static function test() {
-	$connection = @fsockopen(ByWireAPI::API_HOST, ByWireAPI::API_PORT);
+	$connection = @fsockopen(ByWireAPI::API_HOST, ByWireAPI::API_PORT, $errno, $errmsg, 1);
 	if (is_resource($connection)) {
 	    fclose($connection);
 	    return true;
@@ -89,8 +89,9 @@ class ByWireAPI {
 	// Gets the account information for a user
 	$route = self::$routes['account'];
 	$user = ByWireUser::instance();
-	if (!$user->is_connected()) {
-	    return false;
+	if (!($user->connection_tested) > 0 || !$user->is_connected()) {
+	     print("INVALID");
+	     return false;
 	}
 	if ($user->expired()) {
 	    $user = ByWireAPI::login();
@@ -103,8 +104,12 @@ class ByWireAPI {
     public static function transfer($amount, $to) {
 	$route = self::$routes['transfer'];
 	$user = ByWireUser::instance();
-	if (!$user->is_connected()) {
-	    return false;
+	if (!($user->connection_tested) > 0 || !$user->is_connected()) {
+	     print("INVALID");
+	     return false;
+	}
+	if ($user->expired()) {
+	    $user = ByWireAPI::login();
 	}
 	$request = array("fromUser"  =>$user->username,
 			 "amount"    =>$amount,
@@ -117,8 +122,9 @@ class ByWireAPI {
 	// Gets the account information for a user
 	$route = self::$routes['stakes'];
 	$user = ByWireUser::instance();
-	if (!$user->is_connected()) {
-	    return false;
+	if (!($user->connection_tested) > 0 || !$user->is_connected()) {
+	     print("INVALID");
+	     return false;
 	}
 	if ($user->expired()) {
 	    $user = ByWireAPI::login();
@@ -141,9 +147,10 @@ class ByWireAPI {
 	// Obtains statics on publishes/reads for the user.
 	$route = self::$routes['publisherstats'];
 	$user = ByWireUser::instance();
-	if (!$user->is_connected()) {
+	if (!($user->connection_tested) > 0 || !$user->is_connected()) {
+	     print("INVALID");
 	     return false;
-	} 
+	}
 	if ($user->expired()) {
 	     $user = ByWireAPI::login();
 	}
@@ -157,9 +164,10 @@ class ByWireAPI {
 	// Obtains statics on publishes/reads for the user.
 	$route = self::$routes['publisherstats'];
 	$user = ByWireUser::instance();
-	if (!$user->is_connected()) {
+	if (!($user->connection_tested) > 0 || !$user->is_connected()) {
+	     print("INVALID");
 	     return false;
-	} 
+	}
 	if ($user->expired()) {
 	     $user = ByWireAPI::login();
 	}
@@ -174,9 +182,10 @@ class ByWireAPI {
 	// Obtains statics on publishes/reads for the user.
 	$route = self::$routes['publisherreport'];
 	$user = ByWireUser::instance();
-	if (!$user->is_connected()) {
+	if (!($user->connection_tested) > 0 || !$user->is_connected()) {
+	     print("INVALID");
 	     return false;
-	} 
+	}
 	if ($user->expired()) {
 	     $user = ByWireAPI::login();
 	}
@@ -190,9 +199,10 @@ class ByWireAPI {
 	// Obtains statics on publishes/reads for the user.
 	$route = self::$routes['accountreport'];
 	$user = ByWireUser::instance();
-	if (!$user->is_connected()) {
+	if (!($user->connection_tested) > 0 || !$user->is_connected()) {
+	     print("INVALID");
 	     return false;
-	} 
+	}
 	if ($user->expired()) {
 	     $user = ByWireAPI::login();
 	}
@@ -216,8 +226,8 @@ class ByWireAPI {
 	// Obtains statics on publishes/reads for the user.
 	$route = self::$routes['articles'];
 	$user = ByWireUser::instance();
-	if (!$user->is_connected()) {
-		print("INVALID");
+	if (!($user->connection_tested) > 0 || !$user->is_connected()) {
+	     print("INVALID");
 	     return false;
 	}
 	if ($user->expired()) {

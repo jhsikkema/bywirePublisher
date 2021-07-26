@@ -231,9 +231,9 @@ class ByWireCertificate {
             $certificate =  ByWireCertificate::generate_certificate($ipfs_hash, $settings, $certificate, true);
         }
 
-        add_action('wp_footer', function() use($certificate){
-            echo $certificate;
-        });
+        //add_action('wp_footer', function() use($certificate){
+        //    echo $certificate;
+        //});
 
         $certificate_container = ByWire::load_view('certificate_nonce', array("message"=>$blockchain_status_message));
         return $certificate_container . $content;

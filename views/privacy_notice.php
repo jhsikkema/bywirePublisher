@@ -1,3 +1,7 @@
+<div><div></div>
+<div>
+
 <p class="bywire-privacy-notice">
-     This site uses ByWire Publisher to publish to the <a href="https://bywire.news" target="_blank"> ByWire Decentralized News Network</a>
+     <a href="https://bywire.news" target="_blank">Bywire Blockchain Partner </a>
 </p>
+</div></div>
