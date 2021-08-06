@@ -166,9 +166,9 @@ class ByWire {
 	    update_post_meta($post->ID,  "_publish_to_bywire", $post_to_bywire);
 	    update_post_meta($post->ID, "_share_images_to_bywire", $share_images);
 	    update_post_meta($post->ID, "_status_post", json_encode($_POST));
-	    //if (!$post_to_bywire) {
-	    //    return;
-	    //}
+	    if (!$post_to_bywire) {
+	        return;
+	    }
 	    $config         = ByWireConfig::instance();
 	    $valid_status   = 'publish';
 	    $valid_status   = true;
@@ -457,7 +457,8 @@ class ByWire {
 	    if (!$config->show_footer) {
 	         return;
 	    }
-	    echo ByWire::load_view('privacy_notice');
+	    //@todo uncomment to show bywire footerx
+	    //echo ByWire::load_view('privacy_notice');
 	}
 }
 

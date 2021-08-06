@@ -4,7 +4,7 @@
  */
 /*
 Plugin Name: Bywire Publisher
-Plugin URI: bywire.news/plugin
+Plugin URI: https://bywire.news/bywire/bywirepublisher
 Description: Used by large news organizations, <strong>Bywire Publisher</strong> is your gateway to publish articles to the bywire decentralized news universe. To get started: activate the Bywire Publisher plugin and then go to your Bywire Settings page to set up your account.
 Version: 0.0.13
 Author: Bywire

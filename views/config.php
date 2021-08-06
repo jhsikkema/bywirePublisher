@@ -76,7 +76,7 @@ $connection_str = ($user->is_connected())  ? '<div class="col-md-6 form-text-suc
                 </div>
                 <div class="col-md-6">
                     <?php echo format_checkbox($config, "allow_use_images", "Allow partners to use images *)"); ?>
-                    <?php echo format_checkbox($config, "show_footer", "Show Footer"); ?>
+                    <!--<?php echo format_checkbox($config, "show_footer", "Show Footer"); ?>-->
                 </div>
             </div>
             <div class="row mb-2">

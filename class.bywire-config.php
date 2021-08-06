@@ -17,22 +17,25 @@ class ByWireConfig extends Singleton {
     const ADD_FEED_KEY           = ByWire::ENV.'-add-feed-key';
     const POST_TYPES_KEY         = ByWire::ENV.'-post-types-key';
     const POST_CATEGORIES_KEY    = ByWire::ENV.'-post-categories-key';
+    const ALL_POSTS_KEY          = ByWire::ENV.'-all-posts-key';
+    const ALL_PAGES_KEY          = ByWire::ENV.'-all-pages-key';
     const CONTEXT_KEY            = ByWire::ENV.'-post-context-key';
+
     public $publish_direct       = true;
     public $show_certificate     = false;
     public $show_login           = true;
     public $show_footer          = false;
     public $add_partner_feed     = true;
     public $allow_use_images     = true;
+    
     public $post_types           = array();
+    public $post_categories      = array();
     
-    public $custom_post_types = false;
+    public $all_posts            = true;
+    public $all_pages            = true;
+    public $add_feed             = true;
     
-    public $all_posts       = true;
-    public $all_pages       = true;
-    public $post_categories = array();
-    
-    public $context          = "";
+    public $context              = "";
 
     public static function get_from_post($tag, $default = "") {
          return isset($_POST[$tag]) ? $_POST[$tag] : $default;
@@ -47,11 +50,10 @@ class ByWireConfig extends Singleton {
         $config->show_login       = isset($_POST[ByWire::ENV.'_show_login']);
         $config->show_footer      = isset($_POST[ByWire::ENV.'_show_footer']);
         $config->add_feed         = isset($_POST[ByWire::ENV.'_add_feed']);
-        $config->post_types       = $config->get_from_post(ByWire::ENV.'post_types', array());
-        $config->custom_post_types= $config->get_from_post(ByWire::ENV.'_custom_post_types');
-        $config->all_posts        = $config->get_from_post(ByWire::ENV.'_all_posts');
-        $config->all_pages        = $config->get_from_post(ByWire::ENV.'_all_pages');
+        $config->all_posts        = isset($_POST[ByWire::ENV.'_all_posts']);
+        $config->all_pages        = isset($_POST[ByWire::ENV.'_all_pages']);
         $config->post_categories  = $config->get_from_post(ByWire::ENV.'_post_categories', array());
+        $config->post_types       = $config->get_from_post(ByWire::ENV.'_post_types');
         $config->store();
         return $config;
     }
@@ -66,14 +68,17 @@ class ByWireConfig extends Singleton {
         $this->show_login       = $this->get_option(ByWireConfig::SHOW_LOGIN_KEY, $this->show_login);
         $this->show_footer      = $this->get_option(ByWireConfig::SHOW_FOOTER_KEY, $this->show_footer);
         $this->allow_use_images = $this->get_option(ByWireConfig::ALLOW_USE_IMAGES_KEY, $this->allow_use_images);
-        $this->add_feed         = $this->get_option(ByWireConfig::ADD_FEED_KEY);
-        $this->all_posts        = $this->get_option(ByWire::ENV.'_all_posts');
-        $this->all_pages        = $this->get_option(ByWire::ENV.'_all_pages');
+        $this->add_feed         = $this->get_option(ByWireConfig::ADD_FEED_KEY, $this->add_feed);
+        $this->all_posts        = $this->get_option(ByWireConfig::ALL_POSTS_KEY, $this->all_posts);
+        $this->all_pages        = $this->get_option(ByWireConfig::ALL_PAGES_KEY, $this->all_pages);
+	
         $post_types             = $this->get_option(ByWireConfig::POST_TYPES_KEY);
         $post_types             = isset($post_types) ? explode(",", $post_types) : array();
 	$this->post_types       = array_map('trim', $post_types);
-        $this->custom_post_types= $this->get_option(ByWire::ENV.'_custom_post_types');
-        $this->post_categories  = $this->get_option(ByWire::ENV.'_post_categories');
+        $post_categories        = $this->get_option(ByWireConfig::POST_CATEGORIES_KEY);
+        $post_categories        = isset($post_categories) ? explode(",", $post_categories) : array();
+	$this->post_categories  = array_map('trim', $post_categories);
+	
         $this->context          = $this->get_option(ByWireConfig::CONTEXT_KEY);
     }
 
@@ -105,7 +110,6 @@ class ByWireConfig extends Singleton {
 
     public function store() {
         update_option( ByWireConfig::PUBLISH_DIRECT_KEY,   $this->publish_direct);
-        update_option( ByWireConfig::POST_TYPES_KEY,       implode(",", $this->post_types));
         update_option( ByWireConfig::SHOW_CERTIFICATE_KEY, $this->show_certificate);
         update_option( ByWireConfig::ALLOW_USE_IMAGES_KEY, $this->allow_use_images);
         update_option( ByWireConfig::SHOW_LOGIN_KEY,       $this->show_login);
@@ -113,10 +117,10 @@ class ByWireConfig extends Singleton {
         update_option( ByWireConfig::ADD_FEED_KEY,         $this->add_feed);
         update_option( ByWireConfig::CONTEXT_KEY,          $this->context);
 
-        update_option( ByWire::ENV.'_custom_post_types', $this->custom_post_types);
-        update_option( ByWire::ENV.'_all_posts', $this->all_posts);
-        update_option( ByWire::ENV.'_all_pages', $this->all_pages);
-        update_option( ByWire::ENV.'_post_categories', $this->post_categories);
+        update_option( ByWireConfig::ALL_POSTS_KEY,        $this->all_posts);
+        update_option( ByWireConfig::ALL_PAGES_KEY,        $this->all_pages);
+        update_option( ByWireConfig::POST_TYPES_KEY,       implode(",", $this->post_types));
+        update_option( ByWireConfig::POST_CATEGORIES_KEY,  implode(",", $this->post_categories));
     }
 
     public function update() {
@@ -127,7 +131,6 @@ class ByWireConfig extends Singleton {
 
     public static function deactivate()  {
         delete_option(ByWireConfig::PUBLISH_DIRECT_KEY);
-        delete_option(ByWireConfig::POST_TYPES_KEY);
         delete_option(ByWireConfig::SHOW_CERTIFICATE_KEY);
         delete_option(ByWireConfig::SHOW_LOGIN_KEY);
         delete_option(ByWireConfig::SHOW_FOOTER_KEY);
@@ -135,10 +138,11 @@ class ByWireConfig extends Singleton {
         delete_option(ByWireConfig::ADD_FEED_KEY);
         delete_option(ByWireConfig::CONTEXT_KEY);
 
-        delete_option(ByWire::ENV.'_custom_post_types');
-        delete_option(ByWire::ENV.'_all_posts');
-        delete_option(ByWire::ENV.'_all_pages');
-        delete_option(ByWire::ENV.'_post_categories');
+        delete_option(ByWireConfig::POST_TYPES_KEY);
+        delete_option(ByWireConfig::POST_CATEGORIES_KEY);
+        delete_option(ByWireConfig::ALL_POSTS_KEY);
+        delete_option(ByWireConfig::ALL_PAGES_KEY);
+
         
     }
 }

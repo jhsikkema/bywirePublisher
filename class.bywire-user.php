@@ -116,7 +116,7 @@ class ByWireUser extends Singleton {
         $instance = self::instance();
 	$instance->disconnect();
 	$username = preg_replace( '/^\s*|\s*$/i', '', $_POST['bywire-username'] );
-	$username = preg_replace( '/[^A-Za-z0-9 _]/i', '', $username);
+	$username = preg_replace( '/[^A-Za-z0-9 _\-\.]/i', '', $username);
 	$instance->username = $username;
         $instance->password = preg_replace( '/[^A-Za-z0-9!@#$%*]/i', '', $_POST['bywire-password']);
         $instance->api_key  = preg_replace( '/[^A-Za-z0-9]/i', '', $_POST['bywire-api-key'] );
